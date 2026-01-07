@@ -8,27 +8,17 @@ import tensorflow as tf
 import tensorflow_hub as hub
 import streamlit as st
 
-# -------------------------------------------------
-# Fix import path
-# -------------------------------------------------
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
 from src.recommend import show_recommendations
 
-# -------------------------------------------------
-# App configuration
-# -------------------------------------------------
 st.set_page_config(
     page_title="Music Mood Classifier",
     page_icon="🎵",
     layout="centered"
-)
 
-# -------------------------------------------------
-# Paths
-# -------------------------------------------------
 MODEL_DIR = "models/embeddings_model"
 YAMNET_URL = "https://tfhub.dev/google/yamnet/1"
 
@@ -36,9 +26,6 @@ CLASSIFIER_PATH = os.path.join(MODEL_DIR, "best_model.keras")
 SCALER_PATH = os.path.join(MODEL_DIR, "scaler.joblib")
 LABEL_ENCODER_PATH = os.path.join(MODEL_DIR, "label_encoder.joblib")
 
-# -------------------------------------------------
-# Genre → Mood
-# -------------------------------------------------
 GENRE_MOOD = {
     "blues": "Sad / Emotional",
     "classical": "Calm / Relaxing",
@@ -52,9 +39,6 @@ GENRE_MOOD = {
     "rock": "Energetic / Powerful"
 }
 
-# -------------------------------------------------
-# Load models (cached)
-# -------------------------------------------------
 @st.cache_resource(show_spinner=False)
 def load_models():
     yamnet = hub.load(YAMNET_URL)
@@ -63,9 +47,6 @@ def load_models():
     label_encoder = joblib.load(LABEL_ENCODER_PATH)
     return yamnet, classifier, scaler, label_encoder
 
-# -------------------------------------------------
-# Feature extraction
-# -------------------------------------------------
 def extract_embedding(yamnet, audio_path, sr=16000):
     wav, _ = librosa.load(audio_path, sr=sr, mono=True)
     _, embeddings, _ = yamnet(wav)
@@ -73,9 +54,6 @@ def extract_embedding(yamnet, audio_path, sr=16000):
     std_emb = np.std(embeddings, axis=0)
     return np.concatenate([mean_emb, std_emb])
 
-# -------------------------------------------------
-# Prediction
-# -------------------------------------------------
 def predict(audio_path):
     yamnet, classifier, scaler, label_encoder = load_models()
 
@@ -93,9 +71,6 @@ def predict(audio_path):
 
     return best_genre, mood, top3
 
-# -------------------------------------------------
-# UI
-# -------------------------------------------------
 st.title("🎵 Music Genre & Mood Classifier")
 st.caption("Upload an audio file to predict its genre, mood, and get curated playlists.")
 
@@ -123,7 +98,6 @@ if uploaded_file:
 
         st.success("Prediction completed")
 
-        # ---------------- Results ----------------
         st.markdown("### 🎯 Top Predictions")
         for g, p in top3:
             st.write(f"**{g}** — {p*100:.2f}%")

@@ -1,9 +1,3 @@
-# src/recommend.py
-"""
-Curated playlist recommendations with brand-consistent buttons.
-Clean, minimal, professional Streamlit UI.
-"""
-
 import streamlit as st
 
 GENRE_PLAYLISTS = {
